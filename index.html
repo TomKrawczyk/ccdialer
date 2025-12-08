@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -558,7 +557,7 @@
             }
         }
 
-        // Save to Google Sheets
+        // Save to Google Sheets - POPRAWIONA FUNKCJA
         async function saveToGoogleSheets() {
             const googleApiKey = document.getElementById('googleApiKey').value;
             const googleSheetId = document.getElementById('googleSheetId').value;
@@ -574,6 +573,7 @@
                 const rowNumber = currentContact.rowNumber;
                 const range = `${sheetName}!A${rowNumber}:Y${rowNumber}`;
                 
+                // Przygotowanie danych do zapisu - wszystkie 25 kolumn (A-Y)
                 const values = [[
                     callData.data || new Date().toLocaleDateString('pl-PL'),
                     currentContact.name,
@@ -602,24 +602,33 @@
                     callData.followUpDate
                 ]];
 
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${googleSheetId}/values/${range}?valueInputOption=RAW&key=${googleApiKey}`;
+                // Użycie prawidłowego endpointu Google Sheets API: values:update
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${googleSheetId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED&key=${googleApiKey}`;
                 
                 const response = await fetch(url, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ values })
+                    body: JSON.stringify({
+                        range: range,
+                        majorDimension: 'ROWS',
+                        values: values
+                    })
                 });
 
-                if (response.ok) {
+                const result = await response.json();
+
+                if (response.ok && result.updatedCells) {
+                    console.log(`✓ Zapisano ${result.updatedCells} komórek do wiersza ${rowNumber}`);
                     return true;
                 } else {
-                    throw new Error('Błąd zapisu');
+                    console.error('Błąd odpowiedzi API:', result);
+                    throw new Error(result.error?.message || 'Błąd zapisu do Google Sheets');
                 }
             } catch (error) {
                 console.error('Błąd zapisywania danych:', error);
-                alert('Błąd podczas zapisywania danych do Google Sheets');
+                alert(`Błąd podczas zapisywania danych do Google Sheets: ${error.message}\n\nSprawdź:\n- Czy API Key jest poprawny\n- Czy arkusz jest udostępniony\n- Czy Google Sheets API jest włączone w projekcie`);
                 return false;
             }
         }
