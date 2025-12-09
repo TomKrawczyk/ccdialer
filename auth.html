@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCDialer - Logowanie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <!-- Login Card -->
+        <div class="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">CCDialer Pro</h1>
+                <p class="text-white/70">System obdzwaniania</p>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <form onsubmit="handleLogin(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Email</label>
+                            <input type="email" id="loginEmail" required 
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="twoj@email.com">
+                        </div>
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Hasło</label>
+                            <input type="password" id="loginPassword" required 
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="••••••••">
+                        </div>
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
+                            Zaloguj się
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-6 text-center">
+                    <button onclick="showRegister()" class="text-white/70 hover:text-white text-sm">
+                        Nie masz konta? <span class="font-semibold">Zarejestruj się</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="hidden">
+                <form onsubmit="handleRegister(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Imię i nazwisko</label>
+                            <input type="text" id="registerName" required 
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Jan Kowalski">
+                        </div>
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Email</label>
+                            <input type="email" id="registerEmail" required 
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="twoj@email.com">
+                        </div>
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Hasło</label>
+                            <input type="password" id="registerPassword" required minlength="6"
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Powtórz hasło</label>
+                            <input type="password" id="registerPasswordConfirm" required minlength="6"
+                                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="••••••••">
+                        </div>
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
+                            Zarejestruj się
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-6 text-center">
+                    <button onclick="showLogin()" class="text-white/70 hover:text-white text-sm">
+                        Masz już konto? <span class="font-semibold">Zaloguj się</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-white text-sm hidden"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6">
+            <p class="text-white/50 text-sm">CCDialer Pro v2.0 - WiFi Edition</p>
+        </div>
+    </div>
+
+    <script>
+        // Show/Hide forms
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            hideError();
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            hideError();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        // Handle Login
+        function handleLogin(event) {
+            event.preventDefault();
+            hideError();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('ccdialer_users') || '[]');
+            
+            // Find user
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                // Save current user session
+                localStorage.setItem('ccdialer_current_user', JSON.stringify({
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    loginTime: new Date().toISOString()
+                }));
+
+                // Redirect to main app
+                window.location.href = 'index-wifi.html';
+            } else {
+                showError('Nieprawidłowy email lub hasło');
+            }
+        }
+
+        // Handle Register
+        function handleRegister(event) {
+            event.preventDefault();
+            hideError();
+
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            // Validate passwords match
+            if (password !== passwordConfirm) {
+                showError('Hasła nie są identyczne');
+                return;
+            }
+
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('ccdialer_users') || '[]');
+
+            // Check if email already exists
+            if (users.some(u => u.email === email)) {
+                showError('Ten email jest już zarejestrowany');
+                return;
+            }
+
+            // Create new user
+            const newUser = {
+                id: 'user_' + Date.now(),
+                name: name,
+                email: email,
+                password: password, // In production, this should be hashed!
+                createdAt: new Date().toISOString(),
+                googleSheetId: '',
+                googleApiKey: '',
+                sheetName: 'Kontakty'
+            };
+
+            // Save user
+            users.push(newUser);
+            localStorage.setItem('ccdialer_users', JSON.stringify(users));
+
+            // Auto login
+            localStorage.setItem('ccdialer_current_user', JSON.stringify({
+                id: newUser.id,
+                email: newUser.email,
+                name: newUser.name,
+                loginTime: new Date().toISOString()
+            }));
+
+            // Show success and redirect
+            alert('✓ Konto utworzone pomyślnie!');
+            window.location.href = 'index-wifi.html';
+        }
+
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('ccdialer_current_user');
+            if (currentUser) {
+                // Already logged in, redirect to main app
+                window.location.href = 'index-wifi.html';
+            }
+        });
+    </script>
+</body>
+</html>

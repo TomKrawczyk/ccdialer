@@ -1,0 +1,116 @@
+@echo off
+chcp 65001 >nul
+cls
+
+echo ╔══════════════════════════════════════════════════════════════╗
+echo ║                                                              ║
+echo ║        CCDialer Pro - Cloud Recording Edition               ║
+echo ║        Automatyczne nagrywanie i zapis do chmury            ║
+echo ║                                                              ║
+echo ╚══════════════════════════════════════════════════════════════╝
+echo.
+
+REM Check if Node.js is installed
+where node >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Node.js nie jest zainstalowany!
+    echo.
+    echo Pobierz i zainstaluj Node.js ze strony: https://nodejs.org/
+    echo.
+    pause
+    exit /b 1
+)
+
+echo [1/5] Sprawdzanie Node.js...
+node --version
+npm --version
+echo.
+
+REM Check if .env exists
+if not exist .env (
+    echo [WARNING] Plik .env nie istnieje!
+    echo.
+    echo Tworzę przykładowy plik .env...
+    (
+        echo # Google Drive Configuration
+        echo GOOGLE_CLIENT_ID=your_client_id_here
+        echo GOOGLE_CLIENT_SECRET=your_client_secret_here
+        echo GOOGLE_REFRESH_TOKEN=your_refresh_token_here
+        echo GOOGLE_DRIVE_FOLDER_ID=your_folder_id_here
+        echo.
+        echo # Server Configuration
+        echo PORT=3003
+        echo WS_PORT=3002
+        echo HTTP_PORT=3001
+    ) > .env
+    echo.
+    echo Plik .env został utworzony. Uzupełnij dane Google Drive API!
+    echo Zobacz instrukcję w GOOGLE_DRIVE_SETUP.md
+    echo.
+    pause
+)
+
+echo [2/5] Instalowanie zależności...
+call npm install
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [ERROR] Nie udało się zainstalować zależności!
+    pause
+    exit /b 1
+)
+echo.
+
+REM Create recordings directory
+if not exist recordings mkdir recordings
+echo [3/5] Katalog recordings/ utworzony
+echo.
+
+REM Get local IP
+echo [4/5] Wykrywanie adresu IP...
+for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /C:"IPv4"') do (
+    set IP=%%a
+    goto :found_ip
+)
+:found_ip
+set IP=%IP: =%
+echo.
+echo ╔══════════════════════════════════════════════════════════════╗
+echo ║  Twój adres IP w sieci lokalnej: %IP%
+echo ╚══════════════════════════════════════════════════════════════╝
+echo.
+
+echo [5/5] Uruchamianie serwerów...
+echo.
+echo ┌──────────────────────────────────────────────────────────────┐
+echo │  WebSocket Server (telefon):  ws://%IP%:3002
+echo │  Phone Companion App:         http://%IP%:3001
+echo │  Desktop App:                 http://%IP%:3001/index-wifi.html
+echo │  Recording Server:            http://%IP%:3003
+echo └──────────────────────────────────────────────────────────────┘
+echo.
+echo ┌──────────────────────────────────────────────────────────────┐
+echo │  INSTRUKCJA:                                                 │
+echo │                                                              │
+echo │  1. Na KOMPUTERZE otwórz:                                   │
+echo │     http://localhost:3001/index-wifi.html                   │
+echo │                                                              │
+echo │  2. Na TELEFONIE otwórz:                                    │
+echo │     http://%IP%:3001
+echo │                                                              │
+echo │  3. Kliknij "Połącz z komputerem" na telefonie              │
+echo │                                                              │
+echo │  4. Nagrania są automatycznie wysyłane do:                  │
+echo │     - Lokalny serwer: recordings/                           │
+echo │     - Google Drive (jeśli skonfigurowano)                   │
+echo │                                                              │
+echo └──────────────────────────────────────────────────────────────┘
+echo.
+echo [INFO] Naciśnij Ctrl+C aby zatrzymać serwery
+echo.
+echo ════════════════════════════════════════════════════════════════
+echo.
+
+REM Start both servers using npm concurrently
+call npm run all
+
+pause

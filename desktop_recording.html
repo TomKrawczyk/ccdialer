@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Center Dialer Pro - WiFi + Recording</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <div class="max-w-7xl mx-auto p-4">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        Call Center Dialer Pro - Recording Edition
+                    </h1>
+                    <p class="text-gray-600 mt-2">System obdzwaniania z automatycznym nagrywaniem rozmów</p>
+                </div>
+                <div class="flex gap-3">
+                    <!-- WiFi Status -->
+                    <div id="wifiStatus" class="px-4 py-2 rounded-xl border-2 flex items-center gap-2">
+                        <div id="wifiStatusDot" class="w-3 h-3 rounded-full bg-gray-400"></div>
+                        <span id="wifiStatusText" class="text-sm font-medium text-gray-600">Brak telefonu</span>
+                    </div>
+                    <button onclick="showRecordings()" class="px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-xl text-white font-semibold shadow-lg flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                        Nagrania (<span id="recordingsCount">0</span>)
+                    </button>
+                    <button onclick="loadSampleData()" class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-xl text-white font-semibold shadow-lg">
+                        Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recording Notice -->
+        <div class="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-300 rounded-2xl p-6 mb-6">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-red-900 mb-2">⚠️ Ważne informacje prawne</h3>
+                    <ul class="text-red-800 space-y-1 text-sm">
+                        <li>• <strong>Nagrywanie rozmów wymaga zgody drugiej strony</strong> (art. 267 KK)</li>
+                        <li>• Informuj każdego rozmówcę o nagrywaniu na początku rozmowy</li>
+                        <li>• Nagrania muszą być zabezpieczone zgodnie z RODO</li>
+                        <li>• Przechowuj nagrania tylko przez niezbędny okres</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-4 border-l-4 border-blue-500">
+                <div class="text-2xl font-bold text-blue-600" id="statTotal">0</div>
+                <div class="text-sm text-gray-600">Wszystkie</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-4 border-l-4 border-green-500">
+                <div class="text-2xl font-bold text-green-600" id="statCompleted">0</div>
+                <div class="text-sm text-gray-600">Ukończone</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-4 border-l-4 border-red-500">
+                <div class="text-2xl font-bold text-red-600" id="statRecorded">0</div>
+                <div class="text-sm text-gray-600">Nagrane</div>
+            </div>
+            <!-- More stats... -->
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Contact Info Panel -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-xl p-6">
+                    <div id="contactDisplay">
+                        <div class="text-center py-12">
+                            <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <p class="text-gray-500 text-lg">Załaduj kontakty aby rozpocząć</p>
+                        </div>
+                    </div>
+
+                    <!-- Recording Indicator -->
+                    <div id="recordingIndicator" class="mb-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border-2 border-red-300 hidden">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                            <span class="text-red-700 font-bold">🎙️ Rozmowa nagrywana</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div id="actionButtons" class="space-y-3 hidden">
+                        <button onclick="startCall()" id="startCallBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg">
+                            📞 Zadzwoń (z nagrywaniem)
+                        </button>
+                        <button onclick="skipContact()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold">
+                            ⏭️ Pomiń kontakt
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Panel -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-xl p-6">
+                    <h3 class="text-2xl font-bold mb-4">📝 Formularz rozmowy</h3>
+                    <p class="text-gray-500">Rozpocznij połączenie aby wypełnić formularz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recordings Modal -->
+    <div id="recordingsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                        Nagrania rozmów
+                    </h2>
+                    <button onclick="hideRecordings()" class="p-2 hover:bg-gray-100 rounded-full">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="recordingsContent" class="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+                <p class="text-center text-gray-500 py-8">Brak nagrań</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let contacts = [];
+        let currentIndex = 0;
+        let stats = { total: 0, completed: 0, recorded: 0 };
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:3002');
+            
+            ws.onopen = () => {
+                console.log('✅ Połączono z serwerem');
+                ws.send(JSON.stringify({ type: 'register_desktop' }));
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'phone_connected') {
+                    updatePhoneStatus(data.totalPhones);
+                } else if (data.type === 'phone_disconnected') {
+                    updatePhoneStatus(data.totalPhones);
+                } else if (data.type === 'recording_saved') {
+                    stats.recorded++;
+                    updateStats();
+                    console.log('💾 Nagranie zapisane:', data.phoneNumber);
+                }
+            };
+            
+            ws.onerror = (error) => {
+                console.error('❌ Błąd WebSocket:', error);
+            };
+            
+            ws.onclose = () => {
+                console.log('🔌 Rozłączono');
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        function updatePhoneStatus(count) {
+            const dot = document.getElementById('wifiStatusDot');
+            const text = document.getElementById('wifiStatusText');
+            const status = document.getElementById('wifiStatus');
+            
+            if (count > 0) {
+                dot.className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse';
+                text.textContent = `${count} telefon(ów) połączonych`;
+                text.className = 'text-sm font-medium text-green-700';
+                status.className = 'px-4 py-2 rounded-xl border-2 border-green-300 bg-green-50 flex items-center gap-2';
+            } else {
+                dot.className = 'w-3 h-3 rounded-full bg-gray-400';
+                text.textContent = 'Brak telefonu';
+                text.className = 'text-sm font-medium text-gray-600';
+                status.className = 'px-4 py-2 rounded-xl border-2 border-gray-300 bg-gray-50 flex items-center gap-2';
+            }
+        }
+
+        function loadSampleData() {
+            contacts = [
+                { id: 1, name: 'Jan Kowalski', phone: '+48123456789' },
+                { id: 2, name: 'Anna Nowak', phone: '+48987654321' }
+            ];
+            stats.total = contacts.length;
+            updateStats();
+            displayCurrentContact();
+            alert('✅ Załadowano przykładowe dane');
+        }
+
+        function displayCurrentContact() {
+            if (contacts.length === 0) return;
+            
+            const contact = contacts[currentIndex];
+            document.getElementById('contactDisplay').innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">${contact.name}</h2>
+                    <p class="text-xl text-blue-600 font-semibold">${contact.phone}</p>
+                </div>
+            `;
+            document.getElementById('actionButtons').classList.remove('hidden');
+        }
+
+        function startCall() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert('Brak połączenia z telefonem!');
+                return;
+            }
+            
+            const contact = contacts[currentIndex];
+            
+            ws.send(JSON.stringify({
+                type: 'make_call',
+                phoneNumber: contact.phone,
+                contactName: contact.name
+            }));
+            
+            document.getElementById('recordingIndicator').classList.remove('hidden');
+            console.log(`📞 Dzwonię do: ${contact.name}`);
+        }
+
+        function skipContact() {
+            if (currentIndex < contacts.length - 1) {
+                currentIndex++;
+                displayCurrentContact();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statCompleted').textContent = stats.completed;
+            document.getElementById('statRecorded').textContent = stats.recorded;
+            document.getElementById('recordingsCount').textContent = stats.recorded;
+        }
+
+        function showRecordings() {
+            document.getElementById('recordingsModal').classList.remove('hidden');
+            document.getElementById('recordingsModal').classList.add('flex');
+        }
+
+        function hideRecordings() {
+            document.getElementById('recordingsModal').classList.add('hidden');
+            document.getElementById('recordingsModal').classList.remove('flex');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>

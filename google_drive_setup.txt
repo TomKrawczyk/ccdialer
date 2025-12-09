@@ -1,0 +1,273 @@
+# 📁 Konfiguracja Google Drive dla nagrań
+
+## Krok 1: Utwórz projekt w Google Cloud Console
+
+1. Przejdź do https://console.cloud.google.com/
+2. Kliknij "Select a project" → "New Project"
+3. Nazwa: **"CCDialer Recordings"**
+4. Kliknij **"Create"**
+
+## Krok 2: Włącz Google Drive API
+
+1. W lewym menu wybierz **"APIs & Services"** → **"Library"**
+2. Wyszukaj: **"Google Drive API"**
+3. Kliknij na wynik i naciśnij **"Enable"**
+
+## Krok 3: Utwórz OAuth 2.0 Credentials
+
+### 3.1 Skonfiguruj OAuth Consent Screen
+
+1. Idź do **"APIs & Services"** → **"OAuth consent screen"**
+2. Wybierz **"External"** → **"Create"**
+3. Wypełnij:
+   - App name: `CCDialer Recordings`
+   - User support email: `twoj@email.com`
+   - Developer contact: `twoj@email.com`
+4. Kliknij **"Save and Continue"**
+5. W **Scopes** kliknij **"Add or Remove Scopes"**
+6. Zaznacz:
+   - `https://www.googleapis.com/auth/drive.file`
+7. **"Save and Continue"** → **"Save and Continue"** → **"Back to Dashboard"**
+
+### 3.2 Utwórz OAuth Client ID
+
+1. Idź do **"APIs & Services"** → **"Credentials"**
+2. Kliknij **"Create Credentials"** → **"OAuth client ID"**
+3. Application type: **"Desktop app"**
+4. Name: `CCDialer Desktop`
+5. Kliknij **"Create"**
+6. **ZAPISZ:**
+   - `Client ID` (np. `123456-abc.apps.googleusercontent.com`)
+   - `Client Secret` (np. `GOCSPX-abc123xyz`)
+
+## Krok 4: Uzyskaj Refresh Token
+
+### Metoda A: Użyj Google OAuth Playground (prostsze)
+
+1. Idź do https://developers.google.com/oauthplayground/
+2. Kliknij ikonę ⚙️ (Settings) w prawym górnym rogu
+3. Zaznacz **"Use your own OAuth credentials"**
+4. Wklej:
+   - OAuth Client ID: `[twój Client ID]`
+   - OAuth Client secret: `[twój Client Secret]`
+5. W lewym panelu wyszukaj: **"Drive API v3"**
+6. Zaznacz: `https://www.googleapis.com/auth/drive.file`
+7. Kliknij **"Authorize APIs"**
+8. Wybierz swoje konto Google
+9. Kliknij **"Allow"** (zezwól na dostęp)
+10. Kliknij **"Exchange authorization code for tokens"**
+11. **ZAPISZ `Refresh token`** (np. `1//0gABCDEF...`)
+
+### Metoda B: Użyj skryptu Node.js (zaawansowane)
+
+```javascript
+// get-refresh-token.js
+const { google } = require('googleapis');
+const readline = require('readline');
+
+const CLIENT_ID = 'YOUR_CLIENT_ID';
+const CLIENT_SECRET = 'YOUR_CLIENT_SECRET';
+const REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob';
+
+const oauth2Client = new google.auth.OAuth2(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    REDIRECT_URI
+);
+
+const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+
+const authUrl = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES,
+});
+
+console.log('Authorize this app by visiting this url:', authUrl);
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
+
+rl.question('Enter the code from that page here: ', async (code) => {
+    rl.close();
+    const { tokens } = await oauth2Client.getToken(code);
+    console.log('Your refresh token:', tokens.refresh_token);
+});
+```
+
+Uruchom:
+```bash
+npm install googleapis
+node get-refresh-token.js
+```
+
+## Krok 5: Utwórz folder na Google Drive
+
+1. Otwórz https://drive.google.com/
+2. Utwórz nowy folder: **"CCDialer Recordings"**
+3. Kliknij prawym przyciskiem → **"Share"** → **"Get link"**
+4. URL będzie wyglądał: `https://drive.google.com/drive/folders/1aBcDeFgHiJkLmNoPqRsTuVwXyZ`
+5. **ZAPISZ folder ID** (część po `/folders/`): `1aBcDeFgHiJkLmNoPqRsTuVwXyZ`
+
+## Krok 6: Skonfiguruj zmienne środowiskowe
+
+Utwórz plik `.env` w głównym katalogu projektu:
+
+```bash
+# Google Drive Configuration
+GOOGLE_CLIENT_ID=123456-abc.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-abc123xyz
+GOOGLE_REFRESH_TOKEN=1//0gABCDEF...
+GOOGLE_DRIVE_FOLDER_ID=1aBcDeFgHiJkLmNoPqRsTuVwXyZ
+```
+
+## Krok 7: Zainstaluj zależności
+
+```bash
+npm install googleapis dotenv
+```
+
+## Krok 8: Zaktualizuj recording-server.js
+
+Na początku pliku dodaj:
+
+```javascript
+require('dotenv').config();
+```
+
+## Krok 9: Uruchom serwer
+
+```bash
+node recording-server.js
+```
+
+## Krok 10: Testowanie
+
+1. Uruchom aplikację telefonu
+2. Wybierz **"Google Drive"** jako miejsce zapisu
+3. Nagraj testową rozmowę
+4. Sprawdź Google Drive - nagranie powinno się pojawić w folderze
+
+---
+
+## 🔒 Bezpieczeństwo
+
+### ⚠️ WAŻNE - Nigdy nie commituj do Git:
+- `.env` - dodaj do `.gitignore`
+- Client Secret
+- Refresh Token
+
+### Przykład .gitignore:
+
+```
+# Environment
+.env
+.env.local
+
+# Recordings
+recordings/
+*.webm
+*.mp3
+*.wav
+
+# Credentials
+credentials.json
+token.json
+```
+
+---
+
+## 🔧 Rozwiązywanie problemów
+
+### Problem: "Invalid grant" error
+
+**Rozwiązanie:**
+1. Refresh token wygasł
+2. Wygeneruj nowy refresh token (Krok 4)
+3. Upewnij się, że użyłeś `access_type: 'offline'`
+
+### Problem: "Insufficient permissions"
+
+**Rozwiązanie:**
+1. Sprawdź czy zaznaczono prawidłowe scope: `drive.file`
+2. Wygeneruj nowy refresh token z poprawnymi uprawnieniami
+
+### Problem: "Quota exceeded"
+
+**Rozwiązanie:**
+1. Google Drive API ma limity: 20,000 requests/day
+2. Dla większych potrzeb przenieś się na płatny plan lub użyj innej usługi
+
+### Problem: Nagrania nie pojawiają się na Google Drive
+
+**Rozwiązanie:**
+1. Sprawdź czy folder ID jest poprawny
+2. Upewnij się, że folder ma odpowiednie uprawnienia
+3. Sprawdź logi serwera: `console.log` w recording-server.js
+
+---
+
+## 📊 Monitoring uploadów
+
+### Sprawdź status uploadów:
+
+```bash
+curl http://localhost:3003/api/statistics
+```
+
+### Sprawdź listę nagrań:
+
+```bash
+curl http://localhost:3003/api/recordings
+```
+
+---
+
+## 💰 Koszty
+
+### Google Drive:
+- **15 GB free** - wystarczy na ~2000 godzin nagrań (audio webm)
+- **100 GB** - $1.99/miesiąc
+- **Unlimited** - Google Workspace ($6-18/user/miesiąc)
+
+### Oszacowanie:
+- 1 minuta nagrania = ~450 KB
+- 100 rozmów/dzień × 5 min = ~225 MB/dzień
+- ~7 GB/miesiąc = mieszczą się w darmowym limicie!
+
+---
+
+## ✅ Gotowe!
+
+Twoje nagrania będą automatycznie zapisywane na Google Drive z:
+- Automatycznym folderowaniem po datach
+- Metadanymi (numer, nazwa, czas trwania)
+- Bezpiecznym przechowywaniem w chmurze
+- Dostępem z dowolnego miejsca
+
+---
+
+## 🔄 Alternatywy do Google Drive
+
+Jeśli wolisz inne rozwiązanie:
+
+### Dropbox
+- API: https://www.dropbox.com/developers
+- 2 GB free
+- Prostsza konfiguracja niż Google Drive
+
+### OneDrive
+- API: https://docs.microsoft.com/onedrive/developer/
+- 5 GB free
+- Integracja z Microsoft 365
+
+### AWS S3
+- Najbardziej profesjonalne
+- Pay-as-you-go ($0.023/GB/miesiąc)
+- Nieograniczona skalowalność
+
+### Własny serwer
+- Pełna kontrola
+- Brak limitów
+- Wymaga VPS (~$5-10/miesiąc)

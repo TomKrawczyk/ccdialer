@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCDialer - Panel nagrań</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                        Panel nagrań rozmów
+                    </h1>
+                    <p class="text-gray-600 mt-2">Zarządzanie i przegląd wszystkich nagrań</p>
+                </div>
+                <button onclick="loadRecordings()" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Odśwież
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Wszystkie nagrania</p>
+                        <p class="text-3xl font-bold text-blue-600 mt-2" id="totalCount">0</p>
+                    </div>
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Całkowity czas</p>
+                        <p class="text-3xl font-bold text-green-600 mt-2" id="totalDuration">0h 0m</p>
+                    </div>
+                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Rozmiar plików</p>
+                        <p class="text-3xl font-bold text-purple-600 mt-2" id="totalSize">0 MB</p>
+                    </div>
+                    <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Średni czas</p>
+                        <p class="text-3xl font-bold text-orange-600 mt-2" id="avgDuration">0m 0s</p>
+                    </div>
+                    <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">🔍 Filtry i wyszukiwanie</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="searchQuery" placeholder="Szukaj po numerze lub nazwie..." 
+                       class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                
+                <input type="date" id="startDate" 
+                       class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                
+                <input type="date" id="endDate" 
+                       class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                
+                <button onclick="searchRecordings()" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold">
+                    Szukaj
+                </button>
+            </div>
+        </div>
+
+        <!-- Recordings List -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                Lista nagrań
+            </h3>
+
+            <div id="loadingSpinner" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <p class="text-gray-600 mt-4">Ładowanie nagrań...</p>
+            </div>
+
+            <div id="recordingsContainer" class="space-y-4 hidden">
+                <!-- Recordings will be inserted here -->
+            </div>
+
+            <div id="emptyState" class="text-center py-12 hidden">
+                <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                </svg>
+                <p class="text-gray-500 text-lg">Brak nagrań</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player Modal -->
+    <div id="audioModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800" id="modalContactName">Nazwa kontaktu</h3>
+                    <p class="text-gray-600" id="modalPhoneNumber">+48 123 456 789</p>
+                </div>
+                <button onclick="closePlayer()" class="p-2 hover:bg-gray-100 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <audio id="audioPlayer" controls class="w-full mb-6">
+                <source id="audioSource" type="audio/webm">
+                Twoja przeglądarka nie obsługuje odtwarzania audio.
+            </audio>
+
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-gray-600">Data nagrania</p>
+                    <p class="font-semibold text-gray-800" id="modalDate">-</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-gray-600">Czas trwania</p>
+                    <p class="font-semibold text-gray-800" id="modalDuration">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3003/api';
+        let allRecordings = [];
+
+        // Load recordings on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRecordings();
+        });
+
+        // Load all recordings
+        async function loadRecordings() {
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+            document.getElementById('recordingsContainer').classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}/recordings`);
+                const data = await response.json();
+
+                if (data.success) {
+                    allRecordings = data.recordings;
+                    displayRecordings(allRecordings);
+                    
+                    // Load statistics
+                    loadStatistics();
+                }
+            } catch (error) {
+                console.error('Błąd ładowania nagrań:', error);
+                alert('Nie można załadować nagrań. Sprawdź czy serwer działa.');
+            } finally {
+                document.getElementById('loadingSpinner').classList.add('hidden');
+            }
+        }
+
+        // Load statistics
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_URL}/statistics`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.statistics;
+                    
+                    document.getElementById('totalCount').textContent = stats.totalRecordings;
+                    
+                    const hours = Math.floor(stats.totalDuration / 3600);
+                    const mins = Math.floor((stats.totalDuration % 3600) / 60);
+                    document.getElementById('totalDuration').textContent = `${hours}h ${mins}m`;
+                    
+                    document.getElementById('totalSize').textContent = 
+                        (stats.totalSize / (1024 * 1024)).toFixed(1) + ' MB';
+                    
+                    const avgMins = Math.floor(stats.averageDuration / 60);
+                    const avgSecs = Math.floor(stats.averageDuration % 60);
+                    document.getElementById('avgDuration').textContent = `${avgMins}m ${avgSecs}s`;
+                }
+            } catch (error) {
+                console.error('Błąd ładowania statystyk:', error);
+            }
+        }
+
+        // Display recordings
+        function displayRecordings(recordings) {
+            const container = document.getElementById('recordingsContainer');
+            
+            if (recordings.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            container.innerHTML = recordings.map(rec => {
+                const date = new Date(rec.timestamp);
+                const dateStr = date.toLocaleDateString('pl-PL');
+                const timeStr = date.toLocaleTimeString('pl-PL');
+                const mins = Math.floor(rec.duration / 60);
+                const secs = rec.duration % 60;
+                const durationStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+                const sizeKB = (rec.fileSize / 1024).toFixed(0);
+
+                return `
+                    <div class="border-2 border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg transition-all">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-gray-800">${rec.contactName}</h4>
+                                <p class="text-blue-600 font-semibold">${rec.phoneNumber}</p>
+                                <div class="flex gap-4 mt-2 text-sm text-gray-600">
+                                    <span>📅 ${dateStr} ${timeStr}</span>
+                                    <span>⏱️ ${durationStr}</span>
+                                    <span>💾 ${sizeKB} KB</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="playRecording('${rec.downloadUrl}', '${rec.contactName}', '${rec.phoneNumber}', '${dateStr} ${timeStr}', '${durationStr}')" 
+                                        class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                    Odtwórz
+                                </button>
+                                <a href="${API_URL}${rec.downloadUrl}" download 
+                                   class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    Pobierz
+                                </a>
+                                <button onclick="deleteRecording('${rec.date}', '${rec.filename}')" 
+                                        class="px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Search recordings
+        async function searchRecordings() {
+            const query = document.getElementById('searchQuery').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let url = `${API_URL}/recordings/search?`;
+            if (query) url += `query=${encodeURIComponent(query)}&`;
+            if (startDate) url += `startDate=${startDate}&`;
+            if (endDate) url += `endDate=${endDate}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayRecordings(data.recordings);
+                }
+            } catch (error) {
+                console.error('Błąd wyszukiwania:', error);
+            }
+        }
+
+        // Play recording
+        function playRecording(url, name, phone, date, duration) {
+            document.getElementById('audioModal').classList.remove('hidden');
+            document.getElementById('audioModal').classList.add('flex');
+            
+            document.getElementById('modalContactName').textContent = name;
+            document.getElementById('modalPhoneNumber').textContent = phone;
+            document.getElementById('modalDate').textContent = date;
+            document.getElementById('modalDuration').textContent = duration;
+            
+            const audioSource = document.getElementById('audioSource');
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            audioSource.src = API_URL + url;
+            audioPlayer.load();
+            audioPlayer.play();
+        }
+
+        // Close player
+        function closePlayer() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.pause();
+            
+            document.getElementById('audioModal').classList.add('hidden');
+            document.getElementById('audioModal').classList.remove('flex');
+        }
+
+        // Delete recording
+        async function deleteRecording(date, filename) {
+            if (!confirm(`Czy na pewno usunąć nagranie ${filename}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/recordings/${date}/${filename}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Nagranie usunięte');
+                    loadRecordings();
+                } else {
+                    alert('❌ Nie udało się usunąć nagrania');
+                }
+            } catch (error) {
+                console.error('Błąd usuwania:', error);
+                alert('❌ Błąd: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

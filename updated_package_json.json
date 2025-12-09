@@ -1,0 +1,41 @@
+{
+  "name": "ccdialer-cloud-recording",
+  "version": "2.2.0",
+  "description": "Call Center Dialer with Cloud Recording (Google Drive, Local Server, AWS S3)",
+  "main": "websocket-server.js",
+  "scripts": {
+    "start": "node server.js",
+    "wifi": "node websocket-server.js",
+    "recording": "node recording-server.js",
+    "all": "concurrently \"npm run wifi\" \"npm run recording\"",
+    "dev": "nodemon websocket-server.js",
+    "dev-recording": "nodemon recording-server.js"
+  },
+  "keywords": [
+    "dialer",
+    "call-center",
+    "wifi",
+    "websocket",
+    "recording",
+    "google-drive",
+    "cloud-storage"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "ws": "^8.18.3",
+    "multer": "^1.4.5-lts.1",
+    "googleapis": "^128.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
