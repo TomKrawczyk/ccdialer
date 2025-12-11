@@ -1,0 +1,57 @@
+{
+  "db": {
+    "users": [
+      {
+        "id": 1,
+        "username": "admin",
+        "password_hash": "$2b$10$DIzIU3Z/8NCaiPTyIH6xwupacJA/YgtMq7g4bhC20zfAecAbxvOLK",
+        "email": null,
+        "full_name": "Administrator",
+        "role": "admin",
+        "created_at": "2025-12-11T08:59:03.276Z"
+      }
+    ],
+    "contacts": [],
+    "call_logs": [],
+    "sessions": [
+      {
+        "id": 1,
+        "user_id": 1,
+        "session_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImRldmljZVR5cGUiOiJwaG9uZSIsInR5cGUiOiJzZXNzaW9uIiwiaWF0IjoxNzY1NDQzNTkxLCJleHAiOjE3NjU1Mjk5OTF9.sPai-EFNfLViNJPEZ5y2KUsqAvrLOwgJ-CdyafUKJpg",
+        "device_type": "phone",
+        "created_at": "2025-12-11T08:59:51.975Z",
+        "expires_at": "2025-12-12T08:59:51.975Z"
+      },
+      {
+        "id": 2,
+        "user_id": 1,
+        "session_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImRldmljZVR5cGUiOiJwaG9uZSIsInR5cGUiOiJzZXNzaW9uIiwiaWF0IjoxNzY1NDQzNzE1LCJleHAiOjE3NjU1MzAxMTV9.gnAB0ni9NIR6XRu3FJUjERew0WLPE6dMbXJ9T2z0a7E",
+        "device_type": "phone",
+        "created_at": "2025-12-11T09:01:55.418Z",
+        "expires_at": "2025-12-12T09:01:55.418Z"
+      },
+      {
+        "id": 3,
+        "user_id": 1,
+        "session_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImRldmljZVR5cGUiOiJwaG9uZSIsInR5cGUiOiJzZXNzaW9uIiwiaWF0IjoxNzY1NDQ0MDc0LCJleHAiOjE3NjU1MzA0NzR9.CzTBYLZmPs_R0cuMiX3HQz0PacMkwNLzcD5WNvqzmlk",
+        "device_type": "phone",
+        "created_at": "2025-12-11T09:07:54.253Z",
+        "expires_at": "2025-12-12T09:07:54.253Z"
+      },
+      {
+        "id": 4,
+        "user_id": 1,
+        "session_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImRldmljZVR5cGUiOiJwaG9uZSIsInR5cGUiOiJzZXNzaW9uIiwiaWF0IjoxNzY1NDQ0MTUwLCJleHAiOjE3NjU1MzA1NTB9.Gh7PM9DyxJqQ4zccTzZfzjiBVa1kAtz6zrHqeF0AH38",
+        "device_type": "phone",
+        "created_at": "2025-12-11T09:09:10.138Z",
+        "expires_at": "2025-12-12T09:09:10.138Z"
+      }
+    ]
+  },
+  "nextId": {
+    "users": 2,
+    "contacts": 1,
+    "call_logs": 1,
+    "sessions": 5
+  }
+}

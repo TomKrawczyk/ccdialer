@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4F46E5">
+    <title>CCDialer Phone Companion</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/Dialer.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .pulse-ring {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 1;
+            }
+        }
+        .status-dot {
+            animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <!-- Main Card -->
+        <div class="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Phone Companion</h1>
+                <p class="text-white/70 text-sm">Automatyczne dzwonienie przez WiFi</p>
+            </div>
+
+            <!-- Connection Status -->
+            <div id="statusCard" class="bg-white/5 rounded-2xl p-6 mb-6 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-white/90 font-medium">Status połączenia</span>
+                    <div class="flex items-center gap-2">
+                        <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-400"></div>
+                        <span id="statusText" class="text-sm text-white/70">Rozłączony</span>
+                    </div>
+                </div>
+                
+                <!-- Server IP Input -->
+                <div id="serverInputGroup" class="mb-4">
+                    <label class="block text-white/70 text-sm mb-2">Adres IP komputera</label>
+                    <input type="text" id="serverIp" placeholder="192.168.1.100" 
+                           class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-white/50 mt-2">Znajdź adres IP na komputerze: ipconfig (Windows) lub ifconfig (Mac/Linux)</p>
+                </div>
+
+                <!-- Connect Button -->
+                <button id="connectBtn" onclick="toggleConnection()" 
+                        class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
+                    Połącz z komputerem
+                </button>
+            </div>
+
+            <!-- Call Status -->
+            <div id="callStatus" class="bg-white/5 rounded-2xl p-6 border border-white/10 hidden">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center pulse-ring">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Dzwonię...</h3>
+                    <p id="callingNumber" class="text-2xl font-mono text-blue-300 mb-2">+48 123 456 789</p>
+                    <p id="callingName" class="text-white/70">Jan Kowalski</p>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <h3 class="text-white font-bold mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Instrukcja
+                </h3>
+                <ol class="text-sm text-white/70 space-y-2 list-decimal list-inside">
+                    <li>Upewnij się, że telefon i komputer są w tej samej sieci WiFi</li>
+                    <li>Wpisz adres IP komputera (wyświetlany na stronie desktop)</li>
+                    <li>Kliknij "Połącz z komputerem"</li>
+                    <li>Telefon będzie automatycznie dzwonił po kliknięciu "Zadzwoń" na komputerze</li>
+                </ol>
+            </div>
+
+            <!-- Install PWA Button -->
+            <button id="installBtn" onclick="installPWA()" 
+                    class="w-full mt-6 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 rounded-xl transition-all border border-white/20 hidden">
+                📱 Zainstaluj jako aplikację
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6">
+            <p class="text-white/50 text-sm">CCDialer Phone Companion v1.0</p>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let isConnected = false;
+        let phoneId = localStorage.getItem('phoneId') || `phone_${Date.now()}`;
+        localStorage.setItem('phoneId', phoneId);
+
+        // PWA Install
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').classList.remove('hidden');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('PWA zainstalowana');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBtn').classList.add('hidden');
+                });
+            }
+        }
+
+        // Load saved server IP
+        const savedIp = localStorage.getItem('serverIp');
+        if (savedIp) {
+            document.getElementById('serverIp').value = savedIp;
+        }
+
+        function toggleConnection() {
+            if (isConnected) {
+                disconnect();
+            } else {
+                connect();
+            }
+        }
+
+        function connect() {
+            const serverIp = document.getElementById('serverIp').value.trim();
+            
+            if (!serverIp) {
+                alert('Proszę wpisać adres IP komputera');
+                return;
+            }
+
+            // Save server IP
+            localStorage.setItem('serverIp', serverIp);
+
+            const wsUrl = `ws://${serverIp}:3002`;
+            console.log('Łączenie z:', wsUrl);
+
+            updateStatus('connecting', 'Łączenie...');
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('✅ Połączono z serwerem');
+                isConnected = true;
+                
+                // Register as phone
+                ws.send(JSON.stringify({
+                    type: 'register_phone',
+                    phoneId: phoneId
+                }));
+
+                updateStatus('connected', 'Połączony');
+                document.getElementById('connectBtn').textContent = 'Rozłącz';
+                document.getElementById('connectBtn').classList.remove('from-blue-500', 'to-indigo-600');
+                document.getElementById('connectBtn').classList.add('from-red-500', 'to-red-600');
+                document.getElementById('serverInputGroup').classList.add('hidden');
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log('📨 Otrzymano:', data);
+
+                    switch (data.type) {
+                        case 'registered':
+                            console.log('✅ Zarejestrowano jako telefon:', data.phoneId);
+                            break;
+
+                        case 'call_command':
+                            makeCall(data.phoneNumber, data.contactName);
+                            break;
+                    }
+                } catch (error) {
+                    console.error('Błąd parsowania wiadomości:', error);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('❌ Błąd WebSocket:', error);
+                updateStatus('error', 'Błąd połączenia');
+                alert('Nie można połączyć z serwerem. Sprawdź:\n- Czy adres IP jest poprawny\n- Czy serwer działa na komputerze\n- Czy jesteś w tej samej sieci WiFi');
+            };
+
+            ws.onclose = () => {
+                console.log('🔌 Rozłączono');
+                isConnected = false;
+                updateStatus('disconnected', 'Rozłączony');
+                document.getElementById('connectBtn').textContent = 'Połącz z komputerem';
+                document.getElementById('connectBtn').classList.remove('from-red-500', 'to-red-600');
+                document.getElementById('connectBtn').classList.add('from-blue-500', 'to-indigo-600');
+                document.getElementById('serverInputGroup').classList.remove('hidden');
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function updateStatus(status, text) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            statusText.textContent = text;
+
+            switch (status) {
+                case 'connected':
+                    statusDot.className = 'w-3 h-3 rounded-full bg-green-500 status-dot';
+                    break;
+                case 'connecting':
+                    statusDot.className = 'w-3 h-3 rounded-full bg-yellow-500 status-dot';
+                    break;
+                case 'error':
+                    statusDot.className = 'w-3 h-3 rounded-full bg-red-500';
+                    break;
+                default:
+                    statusDot.className = 'w-3 h-3 rounded-full bg-gray-400';
+            }
+        }
+
+        function makeCall(phoneNumber, contactName) {
+            console.log(`📞 Dzwonię do: ${phoneNumber}`);
+
+            // Show call status
+            document.getElementById('callingNumber').textContent = phoneNumber;
+            document.getElementById('callingName').textContent = contactName;
+            document.getElementById('callStatus').classList.remove('hidden');
+
+            // Make the call using tel: protocol
+            const telUrl = `tel:${phoneNumber}`;
+            window.location.href = telUrl;
+
+            // Notify server that call started
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'call_started',
+                    phoneId: phoneId,
+                    phoneNumber: phoneNumber
+                }));
+            }
+
+            // Hide call status after 3 seconds
+            setTimeout(() => {
+                document.getElementById('callStatus').classList.add('hidden');
+            }, 3000);
+        }
+
+        // Auto-reconnect on page visibility
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && !isConnected) {
+                const savedIp = localStorage.getItem('serverIp');
+                if (savedIp) {
+                    document.getElementById('serverIp').value = savedIp;
+                }
+            }
+        });
+
+        // Keep screen awake
+        if ('wakeLock' in navigator) {
+            let wakeLock = null;
+            async function requestWakeLock() {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('🔆 Screen wake lock aktywny');
+                } catch (err) {
+                    console.log('Wake lock error:', err);
+                }
+            }
+            requestWakeLock();
+        }
+    </script>
+</body>
+</html>

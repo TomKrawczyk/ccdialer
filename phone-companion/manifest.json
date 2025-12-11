@@ -1,0 +1,24 @@
+{
+  "name": "CCDialer Phone Companion",
+  "short_name": "CCDialer",
+  "description": "Automatyczne dzwonienie przez WiFi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4F46E5",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/images/WiFiCalling.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/Icon.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
